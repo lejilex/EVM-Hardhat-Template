@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "es2018",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "outDir": "dist",
+    "declaration": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "./contracts",
+    "./scripts",
+    "./eth-sdk",
+    "./utils",
+    "./tasks/*",
+    "./test",
+    "./types",
+    "./typechain-types"
+  ],
+  "files": ["./hardhat.config.ts"]
+}
