@@ -6,7 +6,6 @@
   "scripts": {
     "preinstall": "npx only-allow yarn",
     "format": "prettier --write './{config,contracts,eth-sdk,scripts,tasks,test,utils}/**/*.{ts,js,sol}'",
-    "fork": "bash ./fork.sh",
     "test": "hardhat test",
     "compile": "hardhat compile",
     "ccompile": "hardhat clean && hardhat compile",
