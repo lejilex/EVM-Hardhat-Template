@@ -1,7 +1,9 @@
 import chalk from "chalk";
 
 export function divider() {
-  console.log("--------------------------------------------------------------------------------");
+  console.log(
+    "--------------------------------------------------------------------------------",
+  );
 }
 
 export function pad(pad: number = 30, ...args: any) {

@@ -1,10 +1,13 @@
 // Env handling:
-import {config as dotenvConfig} from "dotenv";
-import {HardhatNetworkAccountsUserConfig, HardhatNetworkAccountUserConfig} from "hardhat/types";
-import {resolve} from "path";
-import {EnvConfig} from "./types";
+import { config as dotenvConfig } from "dotenv";
+import {
+  HardhatNetworkAccountsUserConfig,
+  HardhatNetworkAccountUserConfig,
+} from "hardhat/types";
+import { resolve } from "path";
+import { EnvConfig } from "./types";
 
-dotenvConfig({path: resolve(__dirname, "../.env")});
+dotenvConfig({ path: resolve(__dirname, "../.env") });
 
 const DEPLOYER_KEY = extractString("DEPLOYER_KEY");
 const PROXY_ADMIN_KEY = extractString("PROXY_ADMIN_KEY");
@@ -23,11 +26,15 @@ function extractString(name: string): string {
   return envVar;
 }
 
-export function getHardhatAccounts(accountList: string[]): HardhatNetworkAccountsUserConfig {
-  const hardhatAccounts: HardhatNetworkAccountUserConfig[] = accountList.map((element) => ({
-    privateKey: element,
-    balance: "1000000000000000000000",
-  }));
+export function getHardhatAccounts(
+  accountList: string[],
+): HardhatNetworkAccountsUserConfig {
+  const hardhatAccounts: HardhatNetworkAccountUserConfig[] = accountList.map(
+    (element) => ({
+      privateKey: element,
+      balance: "1000000000000000000000",
+    }),
+  );
   return hardhatAccounts;
 }
 
