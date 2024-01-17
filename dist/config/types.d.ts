@@ -1,6 +1,5 @@
 export type EnvConfig = {
     ETHERSCAN_API_KEY: string;
-    GANACHE_RPC_URL: string;
     GOERLI_RPC_URL: string;
     MAINNET_RPC_URL: string;
     MUMBAI_RPC_URL: string;

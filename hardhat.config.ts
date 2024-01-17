@@ -37,14 +37,6 @@ const config: HardhatUserConfig = {
       url: envConfig.GOERLI_RPC_URL,
       accounts: envConfig.ACCOUNTS,
     },
-    mumbai: {
-      url: envConfig.MUMBAI_RPC_URL,
-      accounts: envConfig.ACCOUNTS,
-    },
-    polygon: {
-      url: envConfig.POLYGON_RPC_URL,
-      accounts: envConfig.ACCOUNTS,
-    },
     hardhat: {
       accounts: hardhatAccounts,
     },
@@ -56,8 +48,6 @@ const config: HardhatUserConfig = {
     apiKey: {
       mainnet: envConfig.ETHERSCAN_API_KEY,
       goerli: envConfig.ETHERSCAN_API_KEY,
-      polygon: envConfig.POLYSCAN_API_KEY,
-      polygonMumbai: envConfig.POLYSCAN_API_KEY,
     },
   },
 };
