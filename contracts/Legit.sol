@@ -23,8 +23,9 @@ contract Legit is
                     STORAGE
 */ //////////////////////////////////////////////
 
-    mapping(address => bool) public acceptedTokens;
-    IUniswapV2Router private router;
+    mapping(address => bool) public acceptedTokens; // slot ...offset + 0
+    IUniswapV2Router private router;                // slot ...offset + 1
+    // add storage here
 
     /*///////////////////////////////////////////////
                     PROXY INIT
@@ -52,9 +53,10 @@ contract Legit is
                     MODIFIERS
 */ //////////////////////////////////////////////
 
-    modifier acceptedTokensOnly(address from, address to) {
-        if (!acceptedTokens[from]) revert UnacceptedToken();
-        if (!acceptedTokens[to]) revert UnacceptedToken();
+    modifier acceptedTokensOnly(address[] calldata path) {
+        for(uint i; i < path.length; i++) {
+            if (!acceptedTokens[path[i]]) revert UnacceptedToken();
+        }
         _;
     }
 
@@ -65,21 +67,16 @@ contract Legit is
     function swapInExact(
         uint amountIn,
         uint amountOutMin,
-        address from,
-        address to
+        address[] calldata path
     )
         external
         whenNotPaused
         nonReentrant
-        acceptedTokensOnly(from, to)
+        acceptedTokensOnly(path)
         returns (uint)
     {
-        IERC20(from).safeTransferFrom(msg.sender, address(this), amountIn);
-        IERC20(from).safeApprove(address(router), amountIn);
-
-        address[] memory path = new address[](2);
-        path[0] = from;
-        path[1] = to;
+        IERC20(path[0]).safeTransferFrom(msg.sender, address(this), amountIn);
+        IERC20(path[0]).safeApprove(address(router), amountIn);
 
         uint[] memory amounts = router.swapExactTokensForTokens(
             amountIn,
@@ -89,7 +86,7 @@ contract Legit is
             block.timestamp
         );
 
-        emit Swap(from, to, amountIn, amounts[1]);
+        emit Swap(path, amounts);
 
         return amounts[1];
     }
@@ -97,21 +94,16 @@ contract Legit is
     function swapOutExact(
         uint amountOut,
         uint amountInMax,
-        address from,
-        address to
+        address[] calldata path
     )
         external
         whenNotPaused
         nonReentrant
-        acceptedTokensOnly(from, to)
+        acceptedTokensOnly(path)
         returns (uint)
     {
-        IERC20(from).safeTransferFrom(msg.sender, address(this), amountInMax);
-        IERC20(from).safeApprove(address(router), amountInMax);
-
-        address[] memory path = new address[](2);
-        path[0] = from;
-        path[1] = to;
+        IERC20(path[0]).safeTransferFrom(msg.sender, address(this), amountInMax);
+        IERC20(path[0]).safeApprove(address(router), amountInMax);
 
         uint[] memory amounts = router.swapTokensForExactTokens(
             amountOut,
@@ -123,10 +115,10 @@ contract Legit is
 
         if (amounts[0] < amountInMax) {
             uint refundAmount = amountInMax - amounts[0];
-            IERC20(from).safeTransfer(msg.sender, refundAmount);
+            IERC20(path[0]).safeTransfer(msg.sender, refundAmount);
         }
 
-        emit Swap(from, to, amounts[0], amounts[1]);
+        emit Swap(path, amounts);
 
         return amounts[1];
     }

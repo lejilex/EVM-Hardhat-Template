@@ -4,10 +4,8 @@ pragma solidity ^0.8.19;
 
 interface ILegit {
     event Swap(
-        address indexed from,
-        address indexed to,
-        uint amountIn,
-        uint amountOut
+        address[] path,
+        uint[] amounts
     );
     event TokenApprovalChanged(address indexed token, bool acceptance);
 
@@ -16,14 +14,12 @@ interface ILegit {
     function swapInExact(
         uint amountIn,
         uint amountOutMin,
-        address from,
-        address to
+        address[] calldata path
     ) external returns (uint);
 
     function swapOutExact(
         uint amountOut,
         uint amountInMax,
-        address from,
-        address to
+        address[] calldata path
     ) external returns (uint);
 }
