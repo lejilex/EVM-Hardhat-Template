@@ -10,9 +10,6 @@ const PROXY_ADMIN_KEY = extractString("PROXY_ADMIN_KEY");
 const ETHERSCAN_API_KEY = extractString("ETHERSCAN_API_KEY");
 const GOERLI_RPC_URL = extractString("GOERLI_RPC_URL");
 const MAINNET_RPC_URL = extractString("MAINNET_RPC_URL");
-const MUMBAI_RPC_URL = extractString("MUMBAI_RPC_URL");
-const POLYGON_RPC_URL = extractString("POLYGON_RPC_URL");
-const POLYSCAN_API_KEY = extractString("POLYSCAN_API_KEY");
 function extractString(name) {
     const envVar = process.env[name];
     if (!envVar) {
@@ -32,8 +29,5 @@ exports.envConfig = {
     ETHERSCAN_API_KEY,
     GOERLI_RPC_URL,
     MAINNET_RPC_URL,
-    MUMBAI_RPC_URL,
-    POLYGON_RPC_URL,
-    POLYSCAN_API_KEY,
     ACCOUNTS: [DEPLOYER_KEY, PROXY_ADMIN_KEY],
 };

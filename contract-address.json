@@ -1,0 +1,13 @@
+{
+  "31337": {
+    "LegitExchange": {
+      "implementation": "",
+      "proxy": ""
+    },
+    "uniswap": "",
+    "tokens": {
+      "usdc": "",
+      "weth": ""
+    }
+  }
+}

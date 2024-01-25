@@ -1,0 +1,73 @@
+import { task } from "hardhat/config";
+import { logger, getContractName } from "utils";
+import { isLocalNetwork } from "utils/networkHelpers";
+import {
+  getAddresses,
+  resetContractAddresses,
+  updateAddresses,
+} from "utils/manageAddresses";
+import { deployLegitImpl, deployLegitAsProxy } from "utils/deployer";
+import { verify } from "utils/verify";
+
+type TaskArgs = {
+  admin: string;
+  skipTokens: boolean;
+  skipVerify: boolean;
+};
+
+task("deploy", "Will deploy the Legit Exchange as a proxy")
+  .addOptionalParam(
+    "admin",
+    "Admin of the exchange proxy, capable of upgrading the contract. Defaults to env config `proxyAdmin` signer when not set",
+  )
+  .addFlag("skipTokens", "Will forgo setting default tokens as accepted")
+  .addFlag("skipVerify", "Skip contract verification")
+  .setAction(async (taskArgs: TaskArgs, hre) => {
+    try {
+      await resetContractAddresses(hre);
+
+      const addresses = await getAddresses(hre);
+      const [deployer, proxyAdmin] = await hre.ethers.getSigners();
+
+      const admin = taskArgs.admin || proxyAdmin.address;
+      const tokens = taskArgs.skipTokens
+        ? []
+        : [addresses.tokens.usdc, addresses.tokens.weth];
+      const verify_contracts = !isLocalNetwork(hre) && !taskArgs.skipVerify;
+
+      const legitImpl = await deployLegitImpl(deployer);
+
+      const legitProxy = await deployLegitAsProxy({
+        deployer: deployer,
+        admin: admin,
+        owner: deployer,
+        router: addresses.uniswap,
+        tokens: tokens,
+        impl: legitImpl,
+      });
+
+      await updateAddresses(
+        {
+          LegitExchange: {
+            proxy: legitProxy.address,
+            implementation: legitImpl.address,
+          },
+        },
+        hre,
+      );
+
+      if (verify_contracts) {
+        await verify(hre, {
+          contract: legitImpl,
+          contractName: "Legit",
+        });
+
+        await verify(hre, {
+          contract: legitProxy,
+          contractName: "ProxyContract",
+        });
+      }
+    } catch (error) {
+      logger.out(error, logger.Level.Error);
+    }
+  });

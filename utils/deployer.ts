@@ -3,7 +3,7 @@ import { Legit, Legit__factory, ProxyContract__factory } from "typechain-types";
 
 export type DeployArgs = {
   deployer: SignerWithAddress;
-  admin: SignerWithAddress;
+  admin: string;
   owner: SignerWithAddress;
   router: string;
   tokens: string[];
@@ -29,7 +29,7 @@ export async function deployLegitAsProxy(args: DeployArgs): Promise<Legit> {
 
   const LegitProxy = await ProxyFactory.deploy(
     args.impl.address,
-    args.admin.address,
+    args.admin,
     InitData,
   );
 
