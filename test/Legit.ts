@@ -42,7 +42,7 @@ describe("Legit", function () {
   let legit: Legit;
 
   beforeEach(async function () {
-    legit = await deployLegitAsProxy({
+    const deployment = await deployLegitAsProxy({
       deployer: deployer,
       admin: proxyAdmin.address,
       owner: deployer,
@@ -50,6 +50,7 @@ describe("Legit", function () {
       tokens: [tokenA.address, tokenB.address],
       impl: legitImpl,
     });
+    legit = deployment.contract;
     snapshot = await takeSnapshot();
   });
 
