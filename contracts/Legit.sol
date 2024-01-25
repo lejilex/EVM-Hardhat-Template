@@ -5,11 +5,12 @@ pragma solidity ^0.8.19;
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {Path} from "./lib/Path.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ILegit} from "./ILegit.sol";
-import {IUniswapV2Router} from "./interfaces/IUniswapV2Router.sol";
+import {ISwapRouter} from "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
 contract Legit is
     OwnableUpgradeable,
@@ -18,13 +19,15 @@ contract Legit is
     ILegit
 {
     using SafeERC20 for IERC20;
+    using Path for bytes;
 
     /*///////////////////////////////////////////////
                     STORAGE
 */ //////////////////////////////////////////////
 
     mapping(address => bool) public acceptedTokens; // slot ...offset + 0
-    IUniswapV2Router private router;                // slot ...offset + 1
+    ISwapRouter private router;
+
     // add storage here
 
     /*///////////////////////////////////////////////
@@ -39,7 +42,7 @@ contract Legit is
         __Ownable_init();
         __Pausable_init();
         transferOwnership(_owner);
-        router = IUniswapV2Router(_router);
+        router = ISwapRouter(_router);
         for (uint i; i < _acceptedTokens.length; i++) {
             acceptedTokens[_acceptedTokens[i]] = true;
         }
@@ -50,78 +53,72 @@ contract Legit is
     }
 
     /*///////////////////////////////////////////////
-                    MODIFIERS
+                    VALIDATION
 */ //////////////////////////////////////////////
 
-    modifier acceptedTokensOnly(address[] calldata path) {
-        for(uint i; i < path.length; i++) {
-            if (!acceptedTokens[path[i]]) revert UnacceptedToken();
-        }
+    modifier acceptedTokensOnly(bytes memory path) {
+        _validateNextToken(path);
         _;
+    }
+
+    function _validateNextToken(
+        bytes memory path
+    ) internal returns (bytes memory pathSlice) {
+        (address tokenA, address tokenB, ) = path.decodeFirstPool();
+        if (!acceptedTokens[tokenA]) revert UnacceptedToken();
+        if (!acceptedTokens[tokenB]) revert UnacceptedToken();
+        pathSlice = path.skipToken();
+        if (!_isEmptyBytes(pathSlice)) {
+            _validateNextToken(pathSlice);
+        }
+    }
+
+    function _isEmptyBytes(bytes memory b) internal pure returns (bool) {
+        return keccak256(b) == keccak256(bytes(""));
     }
 
     /*///////////////////////////////////////////////
                 EXTERNAL METHODS
 */ //////////////////////////////////////////////
 
-    function swapInExact(
+    function swapInExactV3(
         uint amountIn,
         uint amountOutMin,
-        address[] calldata path
-    )
-        external
-        whenNotPaused
-        nonReentrant
-        acceptedTokensOnly(path)
-        returns (uint)
-    {
-        IERC20(path[0]).safeTransferFrom(msg.sender, address(this), amountIn);
-        IERC20(path[0]).safeApprove(address(router), amountIn);
+        bytes calldata path
+    ) external whenNotPaused nonReentrant acceptedTokensOnly(path) {
+        ISwapRouter.ExactInputParams memory params = ISwapRouter
+            .ExactInputParams({
+                path: path,
+                recipient: msg.sender,
+                deadline: block.timestamp,
+                amountIn: amountIn,
+                amountOutMinimum: amountOutMin
+            });
 
-        uint[] memory amounts = router.swapExactTokensForTokens(
-            amountIn,
-            amountOutMin,
-            path,
-            msg.sender,
-            block.timestamp
-        );
+        uint256 amountOut = router.exactInput(params);
 
-        emit Swap(path, amounts);
-
-        return amounts[1];
+        emit Swap(path, amountIn, amountOut);
     }
 
-    function swapOutExact(
+    function swapOutExactV3(
         uint amountOut,
         uint amountInMax,
-        address[] calldata path
-    )
-        external
-        whenNotPaused
-        nonReentrant
-        acceptedTokensOnly(path)
-        returns (uint)
-    {
-        IERC20(path[0]).safeTransferFrom(msg.sender, address(this), amountInMax);
-        IERC20(path[0]).safeApprove(address(router), amountInMax);
+        bytes calldata path
+    ) external whenNotPaused nonReentrant acceptedTokensOnly(path) {
+        ISwapRouter.ExactOutputParams memory params = ISwapRouter
+            .ExactOutputParams({
+                path: path,
+                recipient: msg.sender,
+                deadline: block.timestamp,
+                amountOut: amountOut,
+                amountInMaximum: amountInMax
+            });
 
-        uint[] memory amounts = router.swapTokensForExactTokens(
-            amountOut,
-            amountInMax,
-            path,
-            msg.sender,
-            block.timestamp
-        );
+        uint256 amountIn = router.exactOutput(params);
 
-        if (amounts[0] < amountInMax) {
-            uint refundAmount = amountInMax - amounts[0];
-            IERC20(path[0]).safeTransfer(msg.sender, refundAmount);
-        }
-
-        emit Swap(path, amounts);
-
-        return amounts[1];
+        emit Swap(path, amountIn, amountOut);
     }
+
     /*///////////////////////////////////////////////
                     ADMIN
 */ //////////////////////////////////////////////

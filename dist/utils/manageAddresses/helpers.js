@@ -62,7 +62,7 @@ function createEmptyAddressObj() {
         tokens: {
             usdc: "",
             weth: "",
-        }
+        },
     };
 }
 exports.createEmptyAddressObj = createEmptyAddressObj;

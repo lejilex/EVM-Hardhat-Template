@@ -16,7 +16,7 @@ async function resetContractAddresses(hre, filePath = constants_1.DEFAULT_CONTRA
     const currentAddressObj = (0, helpers_1.getAddressesByNetworkId)(chainId, filePath);
     const cleaned = {
         ...emptyAddressObj,
-        tokens: { ...currentAddressObj.tokens, },
+        tokens: { ...currentAddressObj.tokens },
         uniswap: currentAddressObj.uniswap,
     };
     (0, helpers_1.saveFrontendFiles)({ [chainId]: cleaned }, filePath);

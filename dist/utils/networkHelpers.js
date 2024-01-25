@@ -17,7 +17,9 @@ async function getChainId(hre) {
 }
 exports.getChainId = getChainId;
 async function isProdNetwork(hreOrChainId) {
-    const thisChainId = typeof hreOrChainId === "number" ? hreOrChainId : await getChainId(hreOrChainId);
+    const thisChainId = typeof hreOrChainId === "number"
+        ? hreOrChainId
+        : await getChainId(hreOrChainId);
     return PROD_NETWORKS.includes(thisChainId);
 }
 exports.isProdNetwork = isProdNetwork;
