@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-interface IUniswapV2Router {
+contract DummyUniswapV2Router {
     function swapExactTokensForTokens(
         uint amountIn,
         uint amountOutMin,
         address[] calldata path,
         address to,
         uint deadline
-    ) external returns (uint[] memory amounts);
+    ) external returns (uint[] memory amounts) {}
 
     function swapTokensForExactTokens(
         uint amountOut,
@@ -16,5 +16,5 @@ interface IUniswapV2Router {
         address[] calldata path,
         address to,
         uint deadline
-    ) external returns (uint[] memory amounts);
+    ) external returns (uint[] memory amounts) {}
 }

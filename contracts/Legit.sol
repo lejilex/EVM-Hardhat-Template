@@ -2,9 +2,8 @@
 // author: @stevieraykatz
 pragma solidity ^0.8.19;
 
-import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
@@ -12,49 +11,54 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ILegit} from "./ILegit.sol";
 import {IUniswapV2Router} from "./interfaces/IUniswapV2Router.sol";
 
-contract Legit is Initializable, Ownable, Pausable, ReentrancyGuard, ILegit {
-
+contract Legit is
+    OwnableUpgradeable,
+    PausableUpgradeable,
+    ReentrancyGuard,
+    ILegit
+{
     using SafeERC20 for IERC20;
 
-/*///////////////////////////////////////////////
+    /*///////////////////////////////////////////////
                     STORAGE
 */ //////////////////////////////////////////////
 
-    mapping(address => bool) approvedTokens;
-    IUniswapV2Router router;
+    mapping(address => bool) public acceptedTokens;
+    IUniswapV2Router private router;
 
-
-/*///////////////////////////////////////////////
+    /*///////////////////////////////////////////////
                     PROXY INIT
 */ //////////////////////////////////////////////
 
     function initialize(
-        address _owner, 
-        address[] calldata _approvedTokens,
-        address _router
+        address _owner,
+        address _router,
+        address[] calldata _acceptedTokens
     ) public initializer {
+        __Ownable_init();
+        __Pausable_init();
         transferOwnership(_owner);
         router = IUniswapV2Router(_router);
-        for(uint i; i < _approvedTokens.length; i++) {
-            approvedTokens[_approvedTokens[i]] = true;
+        for (uint i; i < _acceptedTokens.length; i++) {
+            acceptedTokens[_acceptedTokens[i]] = true;
         }
     }
-    
-    constructor () {
+
+    constructor() {
         _disableInitializers();
     }
 
-/*///////////////////////////////////////////////
+    /*///////////////////////////////////////////////
                     MODIFIERS
 */ //////////////////////////////////////////////
 
     modifier acceptedTokensOnly(address from, address to) {
-        if(!approvedTokens[from]) revert UnacceptedToken();
-        if(!approvedTokens[to]) revert UnacceptedToken();
+        if (!acceptedTokens[from]) revert UnacceptedToken();
+        if (!acceptedTokens[to]) revert UnacceptedToken();
         _;
     }
 
-/*///////////////////////////////////////////////
+    /*///////////////////////////////////////////////
                 EXTERNAL METHODS
 */ //////////////////////////////////////////////
 
@@ -63,16 +67,22 @@ contract Legit is Initializable, Ownable, Pausable, ReentrancyGuard, ILegit {
         uint amountOutMin,
         address from,
         address to
-    ) external whenNotPaused nonReentrant acceptedTokensOnly(from,to) returns(uint) {
-        IERC20(from).safeTransferFrom(msg.sender, address(this), amountIn);        
+    )
+        external
+        whenNotPaused
+        nonReentrant
+        acceptedTokensOnly(from, to)
+        returns (uint)
+    {
+        IERC20(from).safeTransferFrom(msg.sender, address(this), amountIn);
         IERC20(from).safeApprove(address(router), amountIn);
-        
+
         address[] memory path = new address[](2);
         path[0] = from;
         path[1] = to;
 
         uint[] memory amounts = router.swapExactTokensForTokens(
-            amountIn, 
+            amountIn,
             amountOutMin,
             path,
             msg.sender,
@@ -89,16 +99,22 @@ contract Legit is Initializable, Ownable, Pausable, ReentrancyGuard, ILegit {
         uint amountInMax,
         address from,
         address to
-    ) external whenNotPaused nonReentrant acceptedTokensOnly(from,to) returns(uint) {
-        IERC20(from).safeTransferFrom(msg.sender, address(this), amountInMax);        
+    )
+        external
+        whenNotPaused
+        nonReentrant
+        acceptedTokensOnly(from, to)
+        returns (uint)
+    {
+        IERC20(from).safeTransferFrom(msg.sender, address(this), amountInMax);
         IERC20(from).safeApprove(address(router), amountInMax);
-        
+
         address[] memory path = new address[](2);
         path[0] = from;
         path[1] = to;
 
         uint[] memory amounts = router.swapTokensForExactTokens(
-            amountOut, 
+            amountOut,
             amountInMax,
             path,
             msg.sender,
@@ -114,15 +130,18 @@ contract Legit is Initializable, Ownable, Pausable, ReentrancyGuard, ILegit {
 
         return amounts[1];
     }
-/*///////////////////////////////////////////////
+    /*///////////////////////////////////////////////
                     ADMIN
 */ //////////////////////////////////////////////
 
-    function modifyTokenAcceptance(address token, bool accepted) external onlyOwner {
-        approvedTokens[token] = accepted;
+    function modifyTokenAcceptance(
+        address token,
+        bool accepted
+    ) external onlyOwner {
+        acceptedTokens[token] = accepted;
 
         emit TokenApprovalChanged(token, accepted);
-    } 
+    }
 
     function pause() external onlyOwner {
         _pause();
