@@ -19,7 +19,12 @@ export async function deployLegitImpl(
   return LegitImpl;
 }
 
-export async function deployLegitAsProxy(args: DeployArgs): Promise<Legit> {
+type ProxyDeployment = {
+  contract: any,
+  data: string
+}
+
+export async function deployLegitAsProxy(args: DeployArgs): Promise<ProxyDeployment> {
   const ProxyFactory = new ProxyContract__factory(args.deployer);
   const InitData = args.impl.interface.encodeFunctionData("initialize", [
     args.owner.address,
@@ -35,5 +40,8 @@ export async function deployLegitAsProxy(args: DeployArgs): Promise<Legit> {
 
   await LegitProxy.deployed();
 
-  return Legit__factory.connect(LegitProxy.address, args.owner);
+  return {
+    contract: Legit__factory.connect(LegitProxy.address, args.owner),
+    data: InitData
+  };
 }

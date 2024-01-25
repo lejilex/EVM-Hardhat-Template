@@ -1,13 +1,35 @@
 {
-  "31337": {
+  "1": {
     "LegitExchange": {
       "implementation": "",
       "proxy": ""
     },
-    "uniswap": "",
+    "uniswap": "0xE592427A0AEce92De3Edee1F18E0157C05861564",
     "tokens": {
-      "usdc": "",
-      "weth": ""
+      "usdc": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "weth": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+    }
+  },
+  "31337": {
+    "LegitExchange": {
+      "implementation": "0xd34Ff29E084a4D887B96838C3F18e831056dd8E1",
+      "proxy": "0x5932198ea7bAF0DB5B39B6c35d7341EF460CD53D"
+    },
+    "uniswap": "0xD97695ef8D03f915bE4E182B07E45f22fa4EAc42",
+    "tokens": {
+      "usdc": "0xD97695ef8D03f915bE4E182B07E45f22fa4EAc42",
+      "weth": "0xD97695ef8D03f915bE4E182B07E45f22fa4EAc42"
+    }
+  },
+  "11155111": {
+    "LegitExchange": {
+      "implementation": "0xD3523cB733ADf9301865FB84f0844C1483650600",
+      "proxy": "0x5b588867D4c5F3A044f2889C284f28c62b6c72a0"
+    },
+    "uniswap": "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+    "tokens": {
+      "usdc": "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
+      "weth": "0x7b79995e5f793a07bc00c21412e50ecae098e7f9"
     }
   }
 }

@@ -1,9 +1,8 @@
 import { task } from "hardhat/config";
-import { logger, getContractName } from "utils";
+import { logger } from "utils";
 import { isLocalNetwork, isProdNetwork } from "utils/networkHelpers";
 import {
   getAddresses,
-  resetContractAddresses,
   updateAddresses,
 } from "utils/manageAddresses";
 import { deployLegitImpl, deployLegitAsProxy } from "utils/deployer";
@@ -29,8 +28,6 @@ task("deploy", "Will deploy the Legit Exchange as a proxy")
   .addFlag("skipVerify", "Skip contract verification")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      await resetContractAddresses(hre);
-
       const addresses = await getAddresses(hre);
       const [deployer, proxyAdmin] = await hre.ethers.getSigners();
 
@@ -42,7 +39,7 @@ task("deploy", "Will deploy the Legit Exchange as a proxy")
 
       const legitImpl = await deployLegitImpl(deployer);
 
-      const legitProxy = await deployLegitAsProxy({
+      const {contract: legitProxy, data: initData} = await deployLegitAsProxy({
         deployer: deployer,
         admin: admin,
         owner: deployer,
@@ -72,6 +69,11 @@ task("deploy", "Will deploy the Legit Exchange as a proxy")
         });
 
         await verify(hre, {
+          constructorArguments: [
+            legitImpl.address,
+            admin,
+            initData
+          ],
           contract: legitProxy,
           contractName: "ProxyContract",
         });

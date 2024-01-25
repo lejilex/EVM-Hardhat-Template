@@ -23,4 +23,5 @@ export enum ChainID {
   polygon = 137,
   hardhat = 31337,
   mumbai = 80001,
+  sepolia = 11155111,
 };
