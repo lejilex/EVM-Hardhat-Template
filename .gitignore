@@ -9,3 +9,5 @@ typechain-types
 ## Env
 .env
 
+## yarn
+yarn-error.log
