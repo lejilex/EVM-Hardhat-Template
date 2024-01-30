@@ -23,8 +23,8 @@
   },
   "11155111": {
     "LegitExchange": {
-      "implementation": "0xD3523cB733ADf9301865FB84f0844C1483650600",
-      "proxy": "0x5b588867D4c5F3A044f2889C284f28c62b6c72a0"
+      "implementation": "0x0C57b6108Ed526C8eDf5067743989828ea8a569F",
+      "proxy": "0xd34Ff29E084a4D887B96838C3F18e831056dd8E1"
     },
     "uniswap": "0xE592427A0AEce92De3Edee1F18E0157C05861564",
     "tokens": {
