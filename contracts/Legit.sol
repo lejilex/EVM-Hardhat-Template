@@ -67,14 +67,10 @@ contract Legit is
         (address tokenA, address tokenB, ) = path.decodeFirstPool();
         if (!acceptedTokens[tokenA]) revert UnacceptedToken();
         if (!acceptedTokens[tokenB]) revert UnacceptedToken();
-        pathSlice = path.skipToken();
-        if (!_isEmptyBytes(pathSlice)) {
+        if (path.hasMultiplePools()) {
+            pathSlice = path.skipToken();
             _validateNextToken(pathSlice);
         }
-    }
-
-    function _isEmptyBytes(bytes memory b) internal pure returns (bool) {
-        return keccak256(b) == keccak256(bytes(""));
     }
 
     /*///////////////////////////////////////////////

@@ -13,7 +13,6 @@ const verify_1 = require("utils/verify");
     .addFlag("skipVerify", "Skip contract verification")
     .setAction(async (taskArgs, hre) => {
     try {
-        await (0, manageAddresses_1.resetContractAddresses)(hre);
         const addresses = await (0, manageAddresses_1.getAddresses)(hre);
         const [deployer, proxyAdmin] = await hre.ethers.getSigners();
         const admin = taskArgs.admin || proxyAdmin.address;
@@ -22,7 +21,7 @@ const verify_1 = require("utils/verify");
             : [addresses.tokens.usdc, addresses.tokens.weth];
         const verify_contracts = !(0, networkHelpers_1.isLocalNetwork)(hre) && !taskArgs.skipVerify;
         const legitImpl = await (0, deployer_1.deployLegitImpl)(deployer);
-        const legitProxy = await (0, deployer_1.deployLegitAsProxy)({
+        const { contract: legitProxy, data: initData } = await (0, deployer_1.deployLegitAsProxy)({
             deployer: deployer,
             admin: admin,
             owner: deployer,
@@ -45,6 +44,7 @@ const verify_1 = require("utils/verify");
                 contractName: "Legit",
             });
             await (0, verify_1.verify)(hre, {
+                constructorArguments: [legitImpl.address, admin, initData],
                 contract: legitProxy,
                 contractName: "ProxyContract",
             });

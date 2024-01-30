@@ -9,4 +9,9 @@ export type DeployArgs = {
     impl: Legit;
 };
 export declare function deployLegitImpl(deployer: SignerWithAddress): Promise<Legit>;
-export declare function deployLegitAsProxy(args: DeployArgs): Promise<Legit>;
+type ProxyDeployment = {
+    contract: any;
+    data: string;
+};
+export declare function deployLegitAsProxy(args: DeployArgs): Promise<ProxyDeployment>;
+export {};

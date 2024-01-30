@@ -9,5 +9,6 @@ var ChainID;
     ChainID[ChainID["polygon"] = 137] = "polygon";
     ChainID[ChainID["hardhat"] = 31337] = "hardhat";
     ChainID[ChainID["mumbai"] = 80001] = "mumbai";
+    ChainID[ChainID["sepolia"] = 11155111] = "sepolia";
 })(ChainID || (exports.ChainID = ChainID = {}));
 ;

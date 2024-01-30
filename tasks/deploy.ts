@@ -1,10 +1,7 @@
 import { task } from "hardhat/config";
 import { logger } from "utils";
 import { isLocalNetwork, isProdNetwork } from "utils/networkHelpers";
-import {
-  getAddresses,
-  updateAddresses,
-} from "utils/manageAddresses";
+import { getAddresses, updateAddresses } from "utils/manageAddresses";
 import { deployLegitImpl, deployLegitAsProxy } from "utils/deployer";
 import { verify } from "utils/verify";
 
@@ -39,14 +36,16 @@ task("deploy", "Will deploy the Legit Exchange as a proxy")
 
       const legitImpl = await deployLegitImpl(deployer);
 
-      const {contract: legitProxy, data: initData} = await deployLegitAsProxy({
-        deployer: deployer,
-        admin: admin,
-        owner: deployer,
-        router: addresses.uniswap,
-        tokens: tokens,
-        impl: legitImpl,
-      });
+      const { contract: legitProxy, data: initData } = await deployLegitAsProxy(
+        {
+          deployer: deployer,
+          admin: admin,
+          owner: deployer,
+          router: addresses.uniswap,
+          tokens: tokens,
+          impl: legitImpl,
+        },
+      );
 
       if (await isProdNetwork(hre)) {
         await legitProxy.transferOwnership(taskArgs.owner);
@@ -69,11 +68,7 @@ task("deploy", "Will deploy the Legit Exchange as a proxy")
         });
 
         await verify(hre, {
-          constructorArguments: [
-            legitImpl.address,
-            admin,
-            initData
-          ],
+          constructorArguments: [legitImpl.address, admin, initData],
           contract: legitProxy,
           contractName: "ProxyContract",
         });

@@ -18,6 +18,9 @@ async function deployLegitAsProxy(args) {
     ]);
     const LegitProxy = await ProxyFactory.deploy(args.impl.address, args.admin, InitData);
     await LegitProxy.deployed();
-    return typechain_types_1.Legit__factory.connect(LegitProxy.address, args.owner);
+    return {
+        contract: typechain_types_1.Legit__factory.connect(LegitProxy.address, args.owner),
+        data: InitData,
+    };
 }
 exports.deployLegitAsProxy = deployLegitAsProxy;

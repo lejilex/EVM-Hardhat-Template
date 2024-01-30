@@ -31,8 +31,8 @@ const config = {
             url: config_1.envConfig.MAINNET_RPC_URL,
             accounts: config_1.envConfig.ACCOUNTS,
         },
-        goerli: {
-            url: config_1.envConfig.GOERLI_RPC_URL,
+        sepolia: {
+            url: config_1.envConfig.SEPOLIA_RPC_URL,
             accounts: config_1.envConfig.ACCOUNTS,
         },
         hardhat: {
@@ -45,7 +45,7 @@ const config = {
     etherscan: {
         apiKey: {
             mainnet: config_1.envConfig.ETHERSCAN_API_KEY,
-            goerli: config_1.envConfig.ETHERSCAN_API_KEY,
+            sepolia: config_1.envConfig.ETHERSCAN_API_KEY,
         },
     },
 };

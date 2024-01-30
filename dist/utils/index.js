@@ -31,4 +31,5 @@ __exportStar(require("./connectSignerFromPkey"), exports);
 __exportStar(require("./deployer"), exports);
 __exportStar(require("./getContractName"), exports);
 __exportStar(require("./keygen"), exports);
+__exportStar(require("./uniswap"), exports);
 exports.logger = __importStar(require("./logger"));

@@ -9,7 +9,6 @@ const chai_1 = require("chai");
 const hardhat_1 = __importDefault(require("hardhat"));
 const utils_1 = require("utils");
 const typechain_types_1 = require("typechain-types");
-const test_1 = require("typechain-types/factories/contracts/test");
 (0, chai_1.use)(smock_1.smock.matchers);
 describe("Legit", function () {
     let deployer;
@@ -21,14 +20,14 @@ describe("Legit", function () {
     before(async function () {
         tokenA = await smock_1.smock.fake(new typechain_types_1.DummyERC20__factory());
         tokenB = await smock_1.smock.fake(new typechain_types_1.DummyERC20__factory());
-        router = await smock_1.smock.fake(new test_1.DummyUniswapV2Router__factory());
+        router = await smock_1.smock.fake(new typechain_types_1.DummyUniswapV3Router__factory());
         [deployer, proxyAdmin] = await hardhat_1.default.ethers.getSigners();
         legitImpl = await (0, utils_1.deployLegitImpl)(deployer);
     });
     let snapshot;
     let legit;
     beforeEach(async function () {
-        legit = await (0, utils_1.deployLegitAsProxy)({
+        const deployment = await (0, utils_1.deployLegitAsProxy)({
             deployer: deployer,
             admin: proxyAdmin.address,
             owner: deployer,
@@ -36,6 +35,7 @@ describe("Legit", function () {
             tokens: [tokenA.address, tokenB.address],
             impl: legitImpl,
         });
+        legit = deployment.contract;
         snapshot = await (0, hardhat_network_helpers_1.takeSnapshot)();
     });
     afterEach(async () => {
@@ -63,6 +63,33 @@ describe("Legit", function () {
             await legit.connect(deployer).modifyTokenAcceptance(tokenA.address, true);
             (0, chai_1.expect)(await legit.acceptedTokens(tokenA.address)).to.be.true;
             (0, chai_1.expect)(await legit.acceptedTokens(tokenB.address)).to.be.true;
+        });
+    });
+    describe("upon calling swapInExactV3", function () {
+        it("reverts when paused", async function () {
+            await legit.pause();
+            await (0, chai_1.expect)(legit.swapInExactV3(0, 0, "0x00")).to.be.revertedWith("Pausable: paused");
+        });
+        it("reverts if the first token is unaccepted", async function () {
+            let PATH = (0, utils_1.encodePath)([tokenA.address, tokenB.address], [0]);
+            await legit.modifyTokenAcceptance(tokenA.address, false);
+            await (0, chai_1.expect)(legit.swapInExactV3(0, 0, PATH)).to.be.revertedWithCustomError(legit, "UnacceptedToken");
+        });
+        it("reverts if the third token is unaccepted", async function () {
+            let PATH = (0, utils_1.encodePath)([tokenA.address, tokenB.address, tokenA.address], [0, 0]);
+            await legit.modifyTokenAcceptance(tokenA.address, false);
+            await (0, chai_1.expect)(legit.swapInExactV3(0, 0, PATH)).to.be.revertedWithCustomError(legit, "UnacceptedToken");
+        });
+        it("correctly calls the router and emits the Swap event", async function () {
+            let PATH = (0, utils_1.encodePath)([tokenA.address, tokenB.address], [10]);
+            console.log(PATH);
+            // router.exactInput.returns(49);
+            await legit.swapInExactV3(100, 50, PATH);
+            // await expect(
+            //   legit.swapInExactV3(100, 50, PATH)
+            // )
+            // .to.emit(legit, "Swap")
+            // .withArgs(PATH, 100, 49)
         });
     });
 });

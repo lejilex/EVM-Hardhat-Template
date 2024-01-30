@@ -8,7 +8,7 @@ const path_1 = require("path");
 const DEPLOYER_KEY = extractString("DEPLOYER_KEY");
 const PROXY_ADMIN_KEY = extractString("PROXY_ADMIN_KEY");
 const ETHERSCAN_API_KEY = extractString("ETHERSCAN_API_KEY");
-const GOERLI_RPC_URL = extractString("GOERLI_RPC_URL");
+const SEPOLIA_RPC_URL = extractString("SEPOLIA_RPC_URL");
 const MAINNET_RPC_URL = extractString("MAINNET_RPC_URL");
 function extractString(name) {
     const envVar = process.env[name];
@@ -27,7 +27,7 @@ function getHardhatAccounts(accountList) {
 exports.getHardhatAccounts = getHardhatAccounts;
 exports.envConfig = {
     ETHERSCAN_API_KEY,
-    GOERLI_RPC_URL,
+    SEPOLIA_RPC_URL,
     MAINNET_RPC_URL,
     ACCOUNTS: [DEPLOYER_KEY, PROXY_ADMIN_KEY],
 };
