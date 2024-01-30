@@ -1,10 +1,8 @@
 import { task } from "hardhat/config";
 import { logger } from "utils";
-import { isLocalNetwork, isProdNetwork } from "utils/networkHelpers";
-import { getAddresses, updateAddresses } from "utils/manageAddresses";
-import { deployLegitImpl, deployLegitAsProxy } from "utils/deployer";
+import { getAddresses } from "utils/manageAddresses";
 import { verify } from "utils/verify";
-import {Legit, Legit__factory, ProxyContract__factory} from "typechain-types";
+import {Legit__factory, ProxyContract__factory} from "typechain-types";
 
 task("verify", "Will verify the contracts for the specified network")
   .setAction(async (_ , hre) => {
